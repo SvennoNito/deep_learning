@@ -25,3 +25,4 @@ plt.plot(x, y, 'x',label='Training Data')
 plt.plot(x_, y_, label='Prediction or Linear Regressoin')
 plt.title('Linear Regression'); plt.xlabel('X'); plt.ylabel('Y'); plt.legend()
 plt.show()
+ 
