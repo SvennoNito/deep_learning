@@ -1,0 +1,47 @@
+import numpy as np
+from matplotlib import pyplot as plt
+from sklearn import neighbors
+
+# Function To Create Training Data
+def get_data_poly_noise(xmin, xmax, noise_rel=0.1, N=50, poly_order=1):
+    
+    x = (xmax - xmin) * np.random.random_sample(size=N) + xmin          # N random datapoints between ymin and ymax
+    poly_coeff = 10 * np.random.random_sample(size=poly_order+1) - 5    # coefficients for the polynomial in [-5,5]
+    
+    #create polynomial
+    y = np.zeros(x.shape)
+    for i in range(poly_order+1):
+        y += poly_coeff[i] * x**i
+    
+    noise_mag = noise_rel * np.abs((np.max(y) - np.min(y)))
+    #add noise in [-noise_mag/2, noise_mag/2]
+    y += noise_mag * np.random.random_sample(size=N) - noise_mag/2
+    
+    return (x, y)
+
+K = 5                     # Number of considered neighbors
+w_method   = 'uniform'    # Method for the weight of the data.
+#w_method   = 'distance'
+
+# create training data
+xmin, xmax = -20, 30      # minimum, maximum of X
+poly_order = 3            # Order of the polynomial
+N_train    = 200          # Number training points
+(x_train, y_train) = get_data_poly_noise(xmin=xmin, xmax=xmax, N=N_train, noise_rel=0.2, poly_order=poly_order)
+
+# create testing data
+x_test = np.linspace(start=xmin, stop=xmax, num=1000)
+
+
+# K nearest neighbour regression
+################################################################################################################################
+neigh = neighbors.KNeighborsRegressor(n_neighbors=K, weights=w_method)
+neigh.fit(x_train.reshape((-1,1)), y_train)
+y_predict = neigh.predict(x_test.reshape((-1,1)))
+
+# Plotting
+plt.plot(x_train, y_train, '.', label='Training Data')
+plt.plot(x_test, y_predict, '-', label='Prediction')
+plt.legend()
+plt.title('K Nearest Neighbours Regression (K=%s)' %K)
+plt.show()
